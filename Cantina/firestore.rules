@@ -1,0 +1,158 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function autenticado() { return request.auth != null; }
+    function usuario(id) { return get(/databases/$(database)/documents/usuarios/$(id)).data; }
+    function cantina() { return autenticado() && usuario(request.auth.uid).tipo == 'CANTINA'; }
+    function podeVerAluno(id) {
+      return autenticado() && (request.auth.uid == id || cantina() || usuario(id).responsavelId == request.auth.uid);
+    }
+    function agora() { return request.time - duration.value(3, 'h'); }
+    function dois(n) { return n < 10 ? '0' + string(n) : string(n); }
+    function mesAtual() { return string(agora().year()) + '-' + dois(agora().month()); }
+    function hoje() { return mesAtual() + '-' + dois(agora().day()); }
+    function novoPedido(id) { return !exists(/databases/$(database)/documents/pedidos/$(id)); }
+    function pedidoDepois(id) { return getAfter(/databases/$(database)/documents/pedidos/$(id)).data; }
+    function totalAnterior(id) {
+      return exists(/databases/$(database)/documents/consumos/$(id)) ? get(/databases/$(database)/documents/consumos/$(id)).data.totalCentavos : 0;
+    }
+    function itemValido(p, id, n) {
+      return p.itens.size() <= n || verificarItem(p, id, p.itens[n]);
+    }
+    function verificarItem(p, id, item) {
+      let depois = getAfter(/databases/$(database)/documents/produtos/$(item.produtoId)).data;
+      return item.keys().hasOnly(['produtoId', 'nome', 'quantidade', 'precoCentavos'])
+        && item.quantidade is int && item.quantidade > 0 && item.quantidade <= 1000
+        && item.precoCentavos == depois.precoCentavos && item.nome == depois.nome
+        && p.quantidades[item.produtoId] == item.quantidade
+        && depois.disponivel == true && depois.dataCardapio == hoje()
+        && depois.estoque >= 0
+        && depois.ultimoPedidoId == id;
+    }
+    function subtotal(p, n) {
+      return p.itens.size() > n ? p.itens[n].precoCentavos * p.itens[n].quantidade : 0;
+    }
+    function contaValida(p, id) {
+      let chave = p.alunoId + '_' + mesAtual();
+      let depois = getAfter(/databases/$(database)/documents/consumos/$(chave)).data;
+      let aluno = usuario(p.alunoId);
+      return aluno.tipo == 'ALUNO' && depois.alunoId == p.alunoId
+        && depois.mesReferencia == mesAtual() && depois.status == 'ABERTO'
+        && depois.ultimoPedidoId == id
+        && depois.totalCentavos == totalAnterior(chave) + p.totalCentavos
+        && depois.totalCentavos <= aluno.limiteMensalCentavos;
+    }
+    match /usuarios/{id} {
+      allow read: if autenticado() && (request.auth.uid == id || cantina() || resource.data.responsavelId == request.auth.uid);
+      allow create: if autenticado() && request.auth.uid == id
+        && request.resource.data.keys().hasOnly(['nome','email','tipo','turma','responsavelId','limiteMensalCentavos'])
+        && request.resource.data.tipo in ['ALUNO','RESPONSAVEL','CANTINA_PENDENTE']
+        && request.resource.data.nome is string && request.resource.data.email == request.auth.token.email
+        && request.resource.data.turma is string && request.resource.data.responsavelId == ''
+        && request.resource.data.limiteMensalCentavos == 0;
+      allow update: if autenticado() && resource.data.tipo == 'ALUNO' && (
+        (usuario(request.auth.uid).tipo == 'RESPONSAVEL' && resource.data.responsavelId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['limiteMensalCentavos'])
+          && request.resource.data.limiteMensalCentavos is int
+          && request.resource.data.limiteMensalCentavos >= 0 && request.resource.data.limiteMensalCentavos <= 999999999)
+        || (cantina() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['responsavelId'])
+          && usuario(request.resource.data.responsavelId).tipo == 'RESPONSAVEL')
+      );
+    }
+    match /produtos/{id} {
+      function produtoValido() {
+        let p = request.resource.data;
+        return p.nome is string && p.nome.size() > 0 && p.nome.size() <= 150
+          && p.descricao is string && p.descricao.size() <= 2000
+          && p.precoCentavos is int && p.precoCentavos > 0 && p.precoCentavos <= 999999999
+          && p.estoque is int && p.estoque >= 0 && p.estoque <= 1000000
+          && p.disponivel is bool && p.dataCardapio is string
+          && p.fotoBase64 is string && p.fotoBase64.size() > 0 && p.fotoBase64.size() < 200000;
+      }
+      function baixaValida() {
+        let idPedido = request.resource.data.ultimoPedidoId;
+        let p = pedidoDepois(idPedido);
+        return novoPedido(idPedido) && p.autorId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estoque','ultimoPedidoId'])
+          && p.quantidades[id] is int && p.quantidades[id] > 0
+          && request.resource.data.estoque == resource.data.estoque - p.quantidades[id]
+          && request.resource.data.estoque >= 0;
+      }
+      allow read: if autenticado();
+      allow create: if cantina() && produtoValido();
+      allow update: if autenticado() && ((cantina() && produtoValido()) || baixaValida());
+    }
+    match /pedidos/{id} {
+      allow read: if podeVerAluno(resource.data.alunoId);
+      allow create: if autenticado()
+        && request.resource.data.keys().hasOnly(['alunoId','alunoNome','autorId','itens','quantidades','totalCentavos','horarioRetirada','origem','formaPagamento','pagamentoStatus','status','data','mesReferencia','criadoEm'])
+        && request.resource.data.autorId == request.auth.uid
+        && ((request.resource.data.alunoId == request.auth.uid && request.resource.data.origem == 'ANTECIPADO' && request.resource.data.status == 'PENDENTE')
+          || (cantina() && request.resource.data.origem == 'BALCAO' && request.resource.data.status == 'RETIRADO'))
+        && request.resource.data.formaPagamento in ['CONTA','PIX','DINHEIRO','CARTAO']
+        && ((request.resource.data.formaPagamento == 'CONTA' && request.resource.data.pagamentoStatus == 'NA_CONTA')
+          || (request.resource.data.formaPagamento != 'CONTA' && request.resource.data.pagamentoStatus == (request.resource.data.origem == 'BALCAO' ? 'PAGO' : 'PENDENTE')))
+        && request.resource.data.data == hoje() && request.resource.data.mesReferencia == mesAtual()
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.horarioRetirada in ['09:00','15:30','Agora']
+        && request.resource.data.itens is list && request.resource.data.quantidades is map
+        && request.resource.data.itens.size() >= 1 && request.resource.data.itens.size() <= 5
+        && request.resource.data.quantidades.size() == request.resource.data.itens.size()
+        && request.resource.data.totalCentavos is int && request.resource.data.totalCentavos > 0
+        && request.resource.data.totalCentavos == subtotal(request.resource.data,0) + subtotal(request.resource.data,1) + subtotal(request.resource.data,2) + subtotal(request.resource.data,3) + subtotal(request.resource.data,4)
+        && itemValido(request.resource.data,id,0) && itemValido(request.resource.data,id,1) && itemValido(request.resource.data,id,2) && itemValido(request.resource.data,id,3) && itemValido(request.resource.data,id,4)
+        && (request.resource.data.itens.size() <= 1 || request.resource.data.itens[1].produtoId != request.resource.data.itens[0].produtoId)
+        && (request.resource.data.itens.size() <= 2 || request.resource.data.itens[2].produtoId != request.resource.data.itens[0].produtoId)
+        && (request.resource.data.itens.size() <= 2 || request.resource.data.itens[2].produtoId != request.resource.data.itens[1].produtoId)
+        && (request.resource.data.itens.size() <= 3 || request.resource.data.itens[3].produtoId != request.resource.data.itens[0].produtoId)
+        && (request.resource.data.itens.size() <= 3 || request.resource.data.itens[3].produtoId != request.resource.data.itens[1].produtoId)
+        && (request.resource.data.itens.size() <= 3 || request.resource.data.itens[3].produtoId != request.resource.data.itens[2].produtoId)
+        && (request.resource.data.itens.size() <= 4 || request.resource.data.itens[4].produtoId != request.resource.data.itens[0].produtoId)
+        && (request.resource.data.itens.size() <= 4 || request.resource.data.itens[4].produtoId != request.resource.data.itens[1].produtoId)
+        && (request.resource.data.itens.size() <= 4 || request.resource.data.itens[4].produtoId != request.resource.data.itens[2].produtoId)
+        && (request.resource.data.itens.size() <= 4 || request.resource.data.itens[4].produtoId != request.resource.data.itens[3].produtoId)
+        && (request.resource.data.formaPagamento != 'CONTA' || contaValida(request.resource.data,id));
+      allow update: if cantina() && (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && ((resource.data.status == 'PENDENTE' && request.resource.data.status == 'PRONTO')
+            || (resource.data.status == 'PRONTO' && request.resource.data.status == 'RETIRADO' && resource.data.pagamentoStatus != 'PENDENTE')))
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pagamentoStatus'])
+          && resource.data.pagamentoStatus == 'PENDENTE' && request.resource.data.pagamentoStatus == 'PAGO')
+      );
+    }
+    match /consumos/{id} {
+      function consumoValido() {
+        let d = request.resource.data;
+        let p = pedidoDepois(d.ultimoPedidoId);
+        return d.keys().hasOnly(['alunoId','mesReferencia','totalCentavos','ultimoPedidoId','status'])
+          && novoPedido(d.ultimoPedidoId) && p.autorId == request.auth.uid && p.formaPagamento == 'CONTA'
+          && d.alunoId == p.alunoId && d.mesReferencia == mesAtual()
+          && id == d.alunoId + '_' + mesAtual() && d.status == 'ABERTO'
+          && d.totalCentavos == totalAnterior(id) + p.totalCentavos;
+      }
+      allow read: if autenticado() && (cantina() || id.matches(request.auth.uid + '_[0-9]{4}-[0-9]{2}') || podeVerAluno(resource.data.alunoId));
+      allow create: if autenticado() && consumoValido();
+      allow update: if autenticado() && (
+        (resource.data.status == 'ABERTO' && consumoValido())
+        || (cantina() && resource.data.mesReferencia < mesAtual()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status == 'FECHADO')
+      );
+    }
+    match /lancamentos/{id} {
+      allow read: if podeVerAluno(resource.data.alunoId);
+      allow create: if autenticado() && novoPedido(id) && request.resource.data == pedidoDepois(id) && request.resource.data.autorId == request.auth.uid;
+    }
+    match /fechamentos/{id} {
+      allow read: if podeVerAluno(resource.data.alunoId);
+      allow create: if cantina() && request.resource.data.keys().hasOnly(['alunoId','mesReferencia','totalCentavos','status'])
+        && request.resource.data.mesReferencia < mesAtual()
+        && id == request.resource.data.alunoId + '_' + request.resource.data.mesReferencia
+        && request.resource.data.totalCentavos == get(/databases/$(database)/documents/consumos/$(id)).data.totalCentavos
+        && getAfter(/databases/$(database)/documents/consumos/$(id)).data.status == 'FECHADO'
+        && request.resource.data.status == 'ABERTO';
+      allow update: if cantina() && resource.data.status == 'ABERTO'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && request.resource.data.status == 'PAGO';
+    }
+  }
+}

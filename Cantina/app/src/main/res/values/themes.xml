@@ -1,0 +1,7 @@
+<resources>
+    <style name="Base.Theme.Cantina" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#243A69</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+    <style name="Theme.Cantina" parent="Base.Theme.Cantina" />
+</resources>

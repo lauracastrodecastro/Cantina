@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Cantina</string>
+    <string-array name="horarios_retirada">
+        <item>Selecione um horário</item>
+        <item>10:00</item>
+        <item>10:30</item>
+        <item>11:00</item>
+        <item>11:30</item>
+    </string-array>
+</resources>

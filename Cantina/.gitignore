@@ -1,0 +1,21 @@
+# Gradle e arquivos gerados pelo Android
+.gradle/
+.android-user-home/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# Configurações locais do Android Studio e IntelliJ
+.idea/
+*.iml
+
+# Metadados do sistema operacional e atalhos locais
+.DS_Store
+Thumbs.db
+desktop.ini
+Desktop.ini
+*.lnk

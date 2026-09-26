@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F2F3F7"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
+
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="700dp"
+        android:orientation="vertical"
+        android:paddingLeft="15dp"
+        android:paddingRight="20dp">
+
+        
+        <ImageView
+            android:id="@+id/img_logo"
+            android:layout_width="111dp"
+            android:layout_height="104dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="Logo"
+            android:scaleType="centerInside"
+            android:src="@drawable/logo" />
+
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Nome"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_nome"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#808080"
+            android:hint="Digite seu nome"
+            android:inputType="textPersonName"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="E-mail"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#808080"
+            android:hint="Digite seu e-mail"
+            android:inputType="textPassword"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Senha"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_senha"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#808080"
+            android:hint="Digite sua senha"
+            android:inputType="textPassword"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Repetir senha"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_repetir_senha"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#808080"
+            android:hint="Digite sua senha novamente"
+            android:inputType="textPassword"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Turma"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_turma"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#808080"
+            android:hint="Digite sua turma"
+            android:inputType="text"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Aluno"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_aluno"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#808080"
+            android:hint="Nome do aluno"
+            android:inputType="textPersonName"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Usuário"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/sp_usuario"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="16dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
+
+        
+        <Button
+            android:id="@+id/btn_cadastrar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:backgroundTint="#3F51B5"
+            android:text="Cadastrar-se"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>
