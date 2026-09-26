@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Cantina"
         tools:targetApi="31">
         <activity
+            android:name=".ExtratoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PedidoActivity"
+            android:exported="false" />
+        <activity
             android:name=".TelaPrincipal"
             android:exported="false" />
         <activity
