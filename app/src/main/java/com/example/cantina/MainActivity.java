@@ -1,7 +1,6 @@
 package com.example.cantina;
 
 import android.os.Bundle;
-import android.content.Intent;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +20,5 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        findViewById(R.id.btn_entrar).setOnClickListener(view ->
-                startActivity(new Intent(this, TelaPrincipal.class)));
     }
 }

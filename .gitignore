@@ -1,6 +1,5 @@
 # Gradle e arquivos gerados pelo Android
 .gradle/
-.android-user-home/
 **/build/
 local.properties
 captures/
