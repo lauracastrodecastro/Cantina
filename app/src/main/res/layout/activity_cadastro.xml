@@ -159,7 +159,7 @@
 
         <!-- BOTÃO -->
         <Button
-            android:id="@+id/btn_entrar"
+            android:id="@+id/btn_cadastrar"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:backgroundTint="#3F51B5"
