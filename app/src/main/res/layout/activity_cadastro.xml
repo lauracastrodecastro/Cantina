@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F2F3F7"
@@ -14,17 +15,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="645dp"
-        android:background="@drawable/bg_card"
         android:orientation="vertical"
         android:paddingLeft="15dp"
         android:paddingRight="20dp">
 
-        <!-- ESPAÇO PARA A LOGO -->
-
-        <!-- TEXTO -->
-
-        <!-- NOME -->
-
+        <!-- LOGO -->
         <ImageView
             android:id="@+id/img_logo"
             android:layout_width="111dp"
@@ -35,6 +30,7 @@
             android:scaleType="centerInside"
             android:src="@drawable/logo" />
 
+        <!-- NOME -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,6 +68,28 @@
             android:layout_marginBottom="8dp"
             android:backgroundTint="#808080"
             android:hint="Digite sua senha"
+            android:inputType="textPassword"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:singleLine="true"
+            android:textSize="15sp" />
+
+        <!-- REPETIR SENHA -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="Repetir senha"
+            android:textColor="#444444"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/et_repetir_senha"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#808080"
+            android:hint="Digite sua senha novamente"
             android:inputType="textPassword"
             android:paddingStart="4dp"
             android:paddingEnd="4dp"
@@ -145,22 +163,11 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:backgroundTint="#3F51B5"
-            android:text="Entrar"
+            android:text="Cadastrar-se"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textView11"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:padding="15dp"
-            android:text="Não tem conta? Cadastre-se"
-            android:textAlignment="center"
-            android:textColor="#3F51B5"
-            android:textSize="16sp" />
 
     </LinearLayout>
 
