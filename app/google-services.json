@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "466137295886",
+    "project_id": "cantinaapp-2960e",
+    "storage_bucket": "cantinaapp-2960e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466137295886:android:e3adae7382b8efcc00a05f",
+        "android_client_info": {
+          "package_name": "com.example.cantina"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFGDyPwxcYpEvZqD0Uaz0m34u2ka2GtNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

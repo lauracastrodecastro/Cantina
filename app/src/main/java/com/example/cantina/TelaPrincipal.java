@@ -1,6 +1,7 @@
 package com.example.cantina;
 
 import android.os.Bundle;
+import android.content.Intent;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,5 +21,9 @@ public class TelaPrincipal extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        findViewById(R.id.btn_ir_pedido).setOnClickListener(view ->
+                startActivity(new Intent(this, PedidoActivity.class)));
+        findViewById(R.id.btn_ver_extrato).setOnClickListener(view ->
+                startActivity(new Intent(this, ExtratoActivity.class)));
     }
 }
